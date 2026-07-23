@@ -3,9 +3,11 @@ import { motion, AnimatePresence } from 'framer-motion'
 import toast from 'react-hot-toast'
 import TopicInput from '../components/TopicInput'
 import VoiceToggle from '../components/VoiceToggle'
+import ProviderSelector from '../components/ProviderSelector'
 import OutputCard from '../components/OutputCard'
 import ThinkingState from '../components/ThinkingState'
 import HistoryPanel from '../components/HistoryPanel'
+import ProviderBadge from '../components/ProviderBadge'
 import { staggerContainer, fadeUpVariant } from '../utils/motion'
 import { useGenerate } from '../hooks/useGenerate'
 
@@ -19,7 +21,9 @@ const EXAMPLE_TOPICS = [
 export default function Home() {
   const [topic, setTopic] = useState('')
   const [voice, setVoice] = useState('professional')
+  const [provider, setProvider] = useState(null) // null = auto
   const [outputs, setOutputs] = useState(null)
+  const [usedProvider, setUsedProvider] = useState(null)
   const [showHistory, setShowHistory] = useState(false)
 
   const { mutate: generate, isPending: isLoading } = useGenerate()
@@ -28,14 +32,23 @@ export default function Home() {
     if (!topic.trim() || topic.length > 150 || isLoading) return
 
     generate(
-      { topic: topic.trim(), voice },
+      { topic: topic.trim(), voice, provider },
       {
         onSuccess: (res) => {
           setOutputs(res.data)
-          toast.success('Content generated!', {
-            icon: '✦',
-            style: { borderLeft: '3px solid #D4AF37' },
-          })
+          setUsedProvider(res.provider || null)
+          toast.success(
+            <span className="flex items-center gap-2">
+              Content generated!
+              {res.provider && (
+                <span className="text-xs text-white/40">via {res.provider}</span>
+              )}
+            </span>,
+            {
+              icon: '✦',
+              style: { borderLeft: '3px solid #D4AF37' },
+            }
+          )
           // Scroll to outputs
           setTimeout(() => {
             document.getElementById('outputs-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
@@ -53,6 +66,7 @@ export default function Home() {
     setTopic(generation.topic)
     setVoice(generation.voice)
     setOutputs(generation.output)
+    setUsedProvider(generation.providerUsed || null)
     setShowHistory(false)
     window.scrollTo({ top: 0, behavior: 'smooth' })
     toast('Past generation loaded', { icon: '↩' })
@@ -73,7 +87,7 @@ export default function Home() {
             <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full
                              bg-gold/8 border border-gold/20 text-gold/80 text-sm font-medium">
               <span className="w-1.5 h-1.5 rounded-full bg-gold animate-pulse" />
-              Powered by Gemini 2.0 Flash
+              Multi-AI Content Engine
             </span>
           </motion.div>
 
@@ -94,10 +108,10 @@ export default function Home() {
           <motion.p
             variants={fadeUpVariant}
             custom={2}
-            className="text-lg sm:text-xl text-white/50 max-w-2xl mx-auto leading-relaxed"
+            className="text-xl text-white/50 mb-10 max-w-2xl mx-auto font-light"
           >
-            AuraPress transforms any topic into a LinkedIn post, Twitter thread, and
-            blog outline — simultaneously — with your brand voice.
+            StoryForge AI transforms any topic into a LinkedIn post, Twitter thread, and
+            blog outline instantly.
           </motion.p>
 
           {/* Example topics */}
@@ -139,6 +153,11 @@ export default function Home() {
           <div className="divider-gold" />
 
           <VoiceToggle selected={voice} onChange={setVoice} />
+
+          <div className="divider-gold" />
+
+          {/* AI Provider Selection */}
+          <ProviderSelector selected={provider} onChange={setProvider} />
 
           {/* Actions row */}
           <div className="flex gap-3">
@@ -188,6 +207,18 @@ export default function Home() {
         id="outputs-section"
         className="px-4 sm:px-6 lg:px-8 pb-24 max-w-7xl mx-auto"
       >
+        {/* Provider used indicator */}
+        {outputs && usedProvider && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex items-center justify-center gap-2 mb-6"
+          >
+            <span className="text-xs text-white/30">Generated with</span>
+            <ProviderBadge provider={usedProvider} />
+          </motion.div>
+        )}
+
         <AnimatePresence mode="wait">
           {isLoading ? (
             <ThinkingState key="thinking" />

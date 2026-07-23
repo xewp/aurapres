@@ -2,9 +2,9 @@ import Navbar from '../components/Navbar'
 
 export default function RootLayout({ children }) {
   return (
-    <div className="min-h-screen bg-dark">
+    <div className="min-h-screen bg-dark flex flex-col">
       <Navbar />
-      <main>{children}</main>
+      <main className="pt-16 flex-1">{children}</main>
 
       {/* Footer */}
       <footer className="border-t border-white/5 py-8 px-4">
@@ -13,9 +13,9 @@ export default function RootLayout({ children }) {
             <span className="text-white/20 text-sm">
               Built with
             </span>
-            <span className="text-gold/60 text-sm font-medium">Gemini AI</span>
+            <span className="text-gold/60 text-sm font-medium">Multi-AI Architecture</span>
             <span className="text-white/20 text-sm">·</span>
-            <span className="text-white/20 text-sm">AuraPress © 2026</span>
+            <span className="text-white/20 text-sm">StoryForge AI © 2026</span>
           </div>
           <div className="flex items-center gap-4 text-xs text-white/20">
             <span>React + Vite</span>

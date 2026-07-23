@@ -4,8 +4,11 @@ import cors from 'cors'
 import helmet from 'helmet'
 import morgan from 'morgan'
 
-import { connectDB } from './config/db.js'
-import generateRoutes from './routes/generateRoutes.js'
+import { initializeProviders } from './providers/index.js'
+import projectRoutes from './routes/projectRoutes.js'
+import providerRoutes from './routes/providerRoutes.js'
+import nicheRoutes from './routes/nicheRoutes.js'
+import promptRoutes from './routes/promptRoutes.js'
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js'
 
 const app = express()
@@ -39,7 +42,7 @@ app.use(
       callback(new Error(`CORS: Origin ${origin} not allowed`))
     },
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   })
 )
@@ -47,8 +50,8 @@ app.use(
 // ──────────────────────────────────────────────
 // Body Parsing
 // ──────────────────────────────────────────────
-app.use(express.json({ limit: '10kb' }))
-app.use(express.urlencoded({ extended: true, limit: '10kb' }))
+app.use(express.json({ limit: '50kb' }))
+app.use(express.urlencoded({ extended: true, limit: '50kb' }))
 
 // ──────────────────────────────────────────────
 // Health Check
@@ -56,7 +59,7 @@ app.use(express.urlencoded({ extended: true, limit: '10kb' }))
 app.get('/api/health', (req, res) => {
   res.status(200).json({
     status: 'ok',
-    message: 'AuraPress API is running',
+    message: 'StoryForge AI API is running',
     timestamp: new Date().toISOString(),
     env: process.env.NODE_ENV,
   })
@@ -65,7 +68,10 @@ app.get('/api/health', (req, res) => {
 // ──────────────────────────────────────────────
 // Routes
 // ──────────────────────────────────────────────
-app.use('/api/generate', generateRoutes)
+app.use('/api/projects', projectRoutes)
+app.use('/api/providers', providerRoutes)
+app.use('/api/niches', nicheRoutes)
+app.use('/api/prompts', promptRoutes)
 
 // ──────────────────────────────────────────────
 // Error Handling (must be last)
@@ -77,9 +83,11 @@ app.use(errorHandler)
 // Start Server
 // ──────────────────────────────────────────────
 const startServer = async () => {
-  await connectDB()
+  // Initialize AI provider adapters from environment variables
+  initializeProviders()
+
   app.listen(PORT, () => {
-    console.log(`🚀 AuraPress API running on http://localhost:${PORT}`)
+    console.log(`🚀 StoryForge AI API running on http://localhost:${PORT}`)
     console.log(`📡 Environment: ${process.env.NODE_ENV}`)
   })
 }

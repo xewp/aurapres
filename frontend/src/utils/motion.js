@@ -1,4 +1,4 @@
-// Framer Motion reusable animation variants for AuraPress
+// Framer Motion reusable animation variants for StoryForge AI
 
 export const fadeUpVariant = {
   hidden: { opacity: 0, y: 24 },

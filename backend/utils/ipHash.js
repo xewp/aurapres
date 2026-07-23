@@ -5,7 +5,7 @@ import crypto from 'crypto'
  * Deterministic — same IP always produces the same hash.
  */
 export function hashIp(ip) {
-  return crypto.createHash('sha256').update(ip + 'aurapress_salt').digest('hex')
+  return crypto.createHash('sha256').update(ip + 'storyforge_salt').digest('hex')
 }
 
 /**

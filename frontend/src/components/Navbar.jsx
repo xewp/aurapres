@@ -1,5 +1,7 @@
 import { motion } from 'framer-motion'
-import { fadeUpVariant } from '../utils/motion'
+import { useNavigate } from 'react-router-dom'
+import { LogOut } from 'lucide-react'
+import { useAuth } from '../contexts/AuthContext'
 
 // Gold logo icon SVG
 const LogoIcon = () => (
@@ -20,6 +22,14 @@ const LogoIcon = () => (
 )
 
 export default function Navbar() {
+  const { user, signOut } = useAuth()
+  const navigate = useNavigate()
+
+  const handleSignOut = async () => {
+    await signOut()
+    navigate('/auth')
+  }
+
   return (
     <motion.nav
       initial={{ opacity: 0, y: -16 }}
@@ -31,32 +41,42 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <div className="flex items-center gap-3">
+          <div 
+            className="flex items-center gap-3 cursor-pointer" 
+            onClick={() => navigate(user ? '/dashboard' : '/')}
+          >
             <div className="animate-float">
               <LogoIcon />
             </div>
-            <span className="text-xl font-bold tracking-tight">
-              <span className="text-gold-gradient">Aura</span>
-              <span className="text-white">Press</span>
-            </span>
-          </div>
-
-          {/* Center badge */}
-          <div className="hidden sm:flex items-center gap-2 px-4 py-1.5 rounded-full border border-gold/20 bg-gold/5">
-            <span className="w-1.5 h-1.5 rounded-full bg-gold animate-pulse" />
-            <span className="text-xs font-medium text-gold/80 tracking-wide">
-              AI Content Engine
+            <span className="text-xl font-bold tracking-tight font-serif">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#D4AF37] to-[#F3E5AB]">StoryForge</span>
+              <span className="text-white ml-1">AI</span>
             </span>
           </div>
 
           {/* Right side */}
-          <div className="flex items-center gap-3">
-            <span className="text-xs text-white/30 hidden sm:block">
-              Powered by Gemini
-            </span>
-            <button className="btn-gold text-sm px-4 py-2">
-              Get Started
-            </button>
+          <div className="flex items-center gap-4">
+            {user ? (
+              <>
+                <span className="text-sm text-gray-400 hidden sm:block">
+                  {user.email}
+                </span>
+                <button 
+                  onClick={handleSignOut}
+                  className="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors p-2 rounded-lg hover:bg-gray-800"
+                  title="Sign out"
+                >
+                  <LogOut className="w-4 h-4" />
+                </button>
+              </>
+            ) : (
+              <button 
+                onClick={() => navigate('/auth')}
+                className="px-4 py-2 bg-gradient-to-r from-[#D4AF37] to-[#F3E5AB] text-[#0A0A0F] text-sm font-bold rounded-lg hover:opacity-90 transition-opacity"
+              >
+                Sign In
+              </button>
+            )}
           </div>
         </div>
       </div>

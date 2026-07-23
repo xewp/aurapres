@@ -54,10 +54,10 @@ export default function ThinkingState() {
           transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
           className="text-lg font-semibold text-gold"
         >
-          AuraPress is generating...
+          StoryForge AI is generating...
         </motion.p>
         <p className="text-sm text-white/30">
-          Crafting 3 outputs simultaneously with Gemini AI
+          Crafting 3 outputs simultaneously with AI
         </p>
       </div>
 

@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
 import { formatDistanceToNow } from '../utils/dateUtils'
+import ProviderBadge from './ProviderBadge'
 
 const voiceBadgeClass = {
   professional: 'badge-professional',
@@ -32,10 +33,13 @@ export default function HistoryCard({ generation, onSelect, onDelete, isDeleting
 
       {/* Footer */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <span className={voiceBadgeClass[generation.voice]}>
             {voiceIcon[generation.voice]} {generation.voice}
           </span>
+          {generation.providerUsed && (
+            <ProviderBadge provider={generation.providerUsed} size="xs" />
+          )}
           <span className="text-xs text-white/30">
             {formatDistanceToNow(generation.createdAt)}
           </span>

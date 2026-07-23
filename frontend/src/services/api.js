@@ -1,32 +1,31 @@
 import axios from 'axios'
+import { supabase } from '../lib/supabase'
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || '/api',
-  timeout: 45000, // 45s — Gemini can be slow on first call
-  headers: { 'Content-Type': 'application/json' },
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
+  withCredentials: true,
 })
 
-// Request interceptor — attach auth token if exists
-api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('aurapress_token')
-    if (token) config.headers.Authorization = `Bearer ${token}`
-    return config
-  },
-  (error) => Promise.reject(error)
-)
+// Request interceptor to attach Supabase JWT
+api.interceptors.request.use(async (config) => {
+  const { data: { session } } = await supabase.auth.getSession()
+  
+  if (session?.access_token) {
+    config.headers.Authorization = `Bearer ${session.access_token}`
+  }
+  
+  return config
+})
 
-// Response interceptor — normalize errors
+// Response interceptor for unified error handling
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    const message =
-      error.response?.data?.error ||
-      error.message ||
-      'Something went wrong. Please try again.'
-
-    // Attach clean message to error object
-    error.friendlyMessage = message
+    // If it's a 401 Unauthorized, maybe trigger a logout or redirect
+    if (error.response?.status === 401) {
+      supabase.auth.signOut()
+      window.location.href = '/auth'
+    }
     return Promise.reject(error)
   }
 )
